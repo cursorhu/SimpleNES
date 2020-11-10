@@ -3,6 +3,7 @@
 
 namespace sn
 {
+    /*PPU: Peripheral Process Unit, 即NES主机。 用CPU模拟PPU需要考虑兼容:如降低显示刷新率等*/
     PPU::PPU(PictureBus& bus, VirtualScreen& screen) :
         m_bus(bus),
         m_screen(screen),

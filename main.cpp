@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     sn::TeeStream logTee (logFile, std::cout);
 
     if (logFile.is_open() && logFile.good())
-        sn::Log::get().setLogStream(logTee);
+        sn::Log::get().setLogStream(logTee); //输出log流到logTee对象，目的是一分二输出，logTee同时输出到logFile和std::cout
     else
         sn::Log::get().setLogStream(std::cout);
 
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
     for (int i = 1; i < argc; ++i)
     {
-        std::string arg (argv[i]);
+        std::string arg (argv[i]);  //这里把char*的argv[i]转为string处理
         if (arg == "-h" || arg == "--help")
         {
             std::cout << "SimpleNES is a simple NES emulator.\n"
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
                       << std::endl;
             return 0;
         }
-        else if (std::strcmp(argv[i], "--log-cpu") == 0)
+        else if (std::strcmp(argv[i], "--log-cpu") == 0) //这个选项没写在help内，是cpudump自动调用？？
         {
             sn::Log::get().setLevel(sn::CpuTrace);
             cpuTraceFile.open("sn.cpudump");
@@ -63,11 +63,13 @@ int main(int argc, char** argv)
         {
             float scale;
             std::stringstream ss;
-            if (i + 1 < argc && ss << argv[i + 1] && ss >> scale)
+            //这里运算符 << 和 >> 被stringstream类重载了，类似于cin >>, cout <<. 
+            //发现没有，stringtream做了数据类型转换, 把sring类型的argv转成了float类型的scale，这是其常见用途
+            if (i + 1 < argc && ss << argv[i + 1] && ss >> scale) 
                 emulator.setVideoScale(scale);
             else
                 LOG(sn::Error) << "Setting scale from argument failed" << std::endl;
-            ++i;
+            ++i;   //进入下一个循环，多参数依次解析
         }
         else if (std::strcmp(argv[i], "-w") == 0 || std::strcmp(argv[i], "--width") == 0)
         {
@@ -89,7 +91,7 @@ int main(int argc, char** argv)
                 LOG(sn::Error) << "Setting height from argument failed" << std::endl;
             ++i;
         }
-        else if (argv[i][0] != '-')
+        else if (argv[i][0] != '-') //输入首字符不是'-'，就是rom-path
             path = argv[i];
         else
             std::cerr << "Unrecognized argument: " << argv[i] << std::endl;
@@ -101,8 +103,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    sn::parseControllerConf("keybindings.conf", p1, p2);
+    sn::parseControllerConf("keybindings.conf", p1, p2); //覆盖默认的keybinding配置
     emulator.setKeys(p1, p2);
-    emulator.run(path);
+    emulator.run(path); 
     return 0;
 }

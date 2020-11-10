@@ -13,10 +13,10 @@ namespace sn
         m_cycleTimer(),
         m_cpuCycleDuration(std::chrono::nanoseconds(559))
     {
-        if(!m_bus.setReadCallback(PPUSTATUS, [&](void) {return m_ppu.getStatus();}) ||
-            !m_bus.setReadCallback(PPUDATA, [&](void) {return m_ppu.getData();}) ||
-            !m_bus.setReadCallback(JOY1, [&](void) {return m_controller1.read();}) ||
-            !m_bus.setReadCallback(JOY2, [&](void) {return m_controller2.read();}) ||
+        if(!m_bus.setReadCallback(PPUSTATUS, [&](void) {return m_ppu.getStatus();}) ||  //注册回调函数std::function<>，使用lambda表达式: [传值类型][参数表]{函数或普通语句}
+            !m_bus.setReadCallback(PPUDATA, [&](void) {return m_ppu.getData();}) ||     //注意有返回的函数，lambda表达式也要return一次,没返回的不用return
+            !m_bus.setReadCallback(JOY1, [&](void) {return m_controller1.read();}) ||   //lambda表达式本质上实现了匿名函数，通常用在回调函数场景
+            !m_bus.setReadCallback(JOY2, [&](void) {return m_controller2.read();}) ||   //[&]表示外部参数以引用使用，[=]表示以值使用，[]表示不使用外部变量，这里外部是lambda表达式以外，namespace以内
             !m_bus.setReadCallback(OAMDATA, [&](void) {return m_ppu.getOAMData();}))
         {
             LOG(Error) << "Critical error: Failed to set I/O callbacks" << std::endl;
@@ -60,6 +60,7 @@ namespace sn
         m_cpu.reset();
         m_ppu.reset();
 
+        /*m_window使用了SFML图像库的类*/
         m_window.create(sf::VideoMode(NESVideoWidth * m_screenScale, NESVideoHeight * m_screenScale),
                         "SimpleNES", sf::Style::Titlebar | sf::Style::Close);
         m_window.setVerticalSyncEnabled(true);

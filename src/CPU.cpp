@@ -51,7 +51,7 @@ namespace sn
         {
             case IRQ:
             case BRK_:
-                r_PC = readAddress(IRQVector);
+                r_PC = readAddress(IRQVector); //PC指向中断入口（中断向量）
                 break;
             case NMI:
                 r_PC = readAddress(NMIVector);
@@ -61,7 +61,7 @@ namespace sn
         m_skipCycles += 7;
     }
 
-    void CPU::pushStack(Byte value)
+    void CPU::pushStack(Byte value) //SP: Stack Pointer，定义在cpu.h的CPU类
     {
         m_bus.write(0x100 | r_SP, value);
         --r_SP; //Hardware stacks grow downward!
@@ -91,7 +91,7 @@ namespace sn
         m_skipCycles += (m_cycles & 1); //+1 if on odd cycle
     }
 
-    void CPU::step()
+    void CPU::step() //单步执行
     {
         ++m_cycles;
 
@@ -120,7 +120,7 @@ namespace sn
                   << "CYC:" << std::setw(3) << std::setfill(' ') << std::dec << ((m_cycles - 1) * 3) % 341
                   << std::endl;
 
-        Byte opcode = m_bus.read(r_PC++);
+        Byte opcode = m_bus.read(r_PC++); //PC: program counter, 定义在cpu.h的CPU类
 
         auto CycleLength = OperationCycles[opcode];
 
@@ -139,7 +139,7 @@ namespace sn
         }
     }
 
-    bool CPU::executeImplied(Byte opcode)
+    bool CPU::executeImplied(Byte opcode) //C++实现基础汇编指令？？NB
     {
         switch (static_cast<OperationImplied>(opcode))
         {
@@ -284,7 +284,7 @@ namespace sn
         return true;
     }
 
-    bool CPU::executeBranch(Byte opcode)
+    bool CPU::executeBranch(Byte opcode) //跳转指令
     {
         if ((opcode & BranchInstructionMask) == BranchInstructionMaskResult)
         {
@@ -326,7 +326,7 @@ namespace sn
         return false;
     }
 
-    bool CPU::executeType1(Byte opcode)
+    bool CPU::executeType1(Byte opcode) //Type 0,1,2: 其他自定义指令
     {
         if ((opcode & InstructionModeMask) == 0x1)
         {
